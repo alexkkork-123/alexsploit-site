@@ -22,7 +22,7 @@ step() { echo -e "\n ${M}${BD}[$1/${TOTAL_STEPS}]${N} ${BD}$2${N}"; }
 
 TOTAL_STEPS=8
 VERSION="version-08d2b9589bf14135"
-CDN="https://alexsploit.vercel.app/downloads"
+CDN="https://alexsploit.com/downloads"
 
 if [ -w "/Applications" ]; then
     APP_DIR="/Applications"

@@ -2,152 +2,201 @@
 
 import { useState } from "react";
 
-const INSTALL_CMD = `bash <(curl -sL SITE_URL/downloads/install.sh)`;
+const INSTALL_CMD = `bash <(curl -sL https://alexsploit.com/downloads/install.sh)`;
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
-  const siteUrl =
-    typeof window !== "undefined" ? window.location.origin : "";
-  const cmd = INSTALL_CMD.replace("SITE_URL", siteUrl);
 
   const copy = () => {
-    navigator.clipboard.writeText(cmd);
+    navigator.clipboard.writeText(INSTALL_CMD);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <main className="gradient-bg min-h-screen relative overflow-hidden">
-      {/* Ambient orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-600/10 rounded-full blur-[128px]" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-[200px]" />
+    <main className="relative min-h-screen overflow-hidden noise">
+      {/* Subtle bg glow */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-violet-600/8 rounded-full blur-[160px] pulse-slow pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-violet-900/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
-        {/* Logo / Title */}
-        <div className="float-anim mb-4">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-2xl shadow-purple-500/20">
-            <span className="text-3xl font-black">A</span>
+      <div className="relative z-10 max-w-2xl mx-auto px-6 pt-32 pb-20">
+        {/* Header */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-violet-600 flex items-center justify-center text-sm font-bold tracking-tight">
+              AS
+            </div>
+            <span className="text-zinc-600 text-sm font-mono">v1.0.0</span>
           </div>
+
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
+            AlexSploit
+          </h1>
+          <p className="text-zinc-500 text-base leading-relaxed max-w-md">
+            ARM64 macOS executor for Apple Silicon. One command to download,
+            inject, and launch.
+          </p>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-3 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-          AlexSploit
-        </h1>
-
-        <p className="text-zinc-400 text-lg md:text-xl mb-2">
-          ARM64 macOS Roblox Executor
-        </p>
-        <p className="text-zinc-600 text-sm mb-12">Apple Silicon Only</p>
-
-        {/* Install command */}
-        <div className="w-full max-w-2xl mb-10">
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3 text-center">
-            One-command install
-          </p>
-          <div
-            onClick={copy}
-            className="glass rounded-xl px-6 py-4 cursor-pointer hover:border-purple-500/30 transition-all group"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <code className="text-sm md:text-base text-purple-300 font-mono truncate">
-                {cmd}
-              </code>
-              <span className="shrink-0 text-xs text-zinc-500 group-hover:text-purple-400 transition-colors">
-                {copied ? "Copied!" : "Click to copy"}
+        {/* Terminal block */}
+        <div className="mb-14">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
+            <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-zinc-800/60">
+              <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+              <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+              <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+              <span className="ml-2 text-[11px] text-zinc-600 font-mono">
+                terminal
               </span>
+            </div>
+            <div
+              onClick={copy}
+              className="px-4 py-4 cursor-pointer group hover:bg-zinc-900/50 transition-colors"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <code className="text-[13px] text-zinc-300 font-mono leading-relaxed">
+                  <span className="text-violet-400">$</span>{" "}
+                  {INSTALL_CMD}
+                </code>
+                <span className="shrink-0 text-[11px] text-zinc-700 group-hover:text-violet-400 transition-colors font-mono">
+                  {copied ? "copied" : "copy"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Feature cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl mb-14">
-          <Card
-            icon="⚡"
-            title="One Command"
-            desc="Downloads, injects, and launches automatically"
-          />
-          <Card
-            icon="🛡️"
-            title="Codesigned"
-            desc="Ad-hoc signed with entitlements preserved"
-          />
-          <Card
-            icon="🖥️"
-            title="Native App"
-            desc="Full executor UI with script editor"
-          />
+        {/* Downloads */}
+        <div className="mb-14">
+          <h2 className="text-xs text-zinc-600 font-mono uppercase tracking-wider mb-4">
+            Downloads
+          </h2>
+          <div className="space-y-2">
+            <DownloadRow
+              href="/downloads/AlexSploit-1.0.0-arm64.dmg"
+              name="AlexSploit-1.0.0-arm64.dmg"
+              size="87 MB"
+              primary
+            />
+            <DownloadRow
+              href="/downloads/libAlexSploit.dylib"
+              name="libAlexSploit.dylib"
+              size="15 MB"
+            />
+            <DownloadRow
+              href="/downloads/install.sh"
+              name="install.sh"
+              size="9 KB"
+            />
+          </div>
         </div>
 
-        {/* Download buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-16">
-          <a
-            href="/downloads/AlexSploit-1.0.0-arm64.dmg"
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/20 text-center"
-          >
-            Download App (.dmg)
-          </a>
-          <a
-            href="/downloads/libAlexSploit.dylib"
-            className="px-8 py-3 rounded-xl glass font-semibold text-sm hover:border-purple-500/30 transition-all text-center"
-          >
-            Download Dylib
-          </a>
-          <a
-            href="/downloads/install.sh"
-            className="px-8 py-3 rounded-xl glass font-semibold text-sm hover:border-purple-500/30 transition-all text-center"
-          >
-            install.sh
-          </a>
-        </div>
-
-        {/* Steps */}
-        <div className="w-full max-w-xl">
-          <h2 className="text-sm text-zinc-500 uppercase tracking-widest mb-6 text-center">
+        {/* Info */}
+        <div className="mb-14">
+          <h2 className="text-xs text-zinc-600 font-mono uppercase tracking-wider mb-4">
             How it works
           </h2>
-          <div className="space-y-4">
-            <Step n={1} text="Run the install command in Terminal" />
-            <Step n={2} text="Script downloads Roblox + AlexSploit" />
-            <Step n={3} text="Dylib is injected and app is codesigned" />
-            <Step n={4} text="Roblox launches — open AlexSploit app to execute" />
+          <div className="space-y-3 text-sm text-zinc-500 leading-relaxed">
+            <div className="flex gap-3">
+              <span className="text-zinc-700 font-mono text-xs mt-0.5 shrink-0">
+                01
+              </span>
+              <p>Run the command above in Terminal</p>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-zinc-700 font-mono text-xs mt-0.5 shrink-0">
+                02
+              </span>
+              <p>Downloads the pinned Roblox version + AlexSploit dylib</p>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-zinc-700 font-mono text-xs mt-0.5 shrink-0">
+                03
+              </span>
+              <p>Injects the dylib, codesigns, and launches Roblox</p>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-zinc-700 font-mono text-xs mt-0.5 shrink-0">
+                04
+              </span>
+              <p>Open the AlexSploit app from Applications to execute scripts</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Requirements */}
+        <div className="mb-20">
+          <h2 className="text-xs text-zinc-600 font-mono uppercase tracking-wider mb-4">
+            Requirements
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            <Tag text="Apple Silicon" />
+            <Tag text="macOS 11+" />
+            <Tag text="Xcode CLT" />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-20 text-zinc-700 text-xs">
-          AlexSploit v1.0.0 · ARM64 · Use an alt account
+        <div className="border-t border-zinc-900 pt-6 flex items-center justify-between">
+          <span className="text-zinc-700 text-xs font-mono">alexsploit</span>
+          <span className="text-zinc-800 text-xs">use an alt account</span>
         </div>
       </div>
     </main>
   );
 }
 
-function Card({
-  icon,
-  title,
-  desc,
+function DownloadRow({
+  href,
+  name,
+  size,
+  primary,
 }: {
-  icon: string;
-  title: string;
-  desc: string;
+  href: string;
+  name: string;
+  size: string;
+  primary?: boolean;
 }) {
   return (
-    <div className="glass rounded-xl p-5 hover:border-purple-500/20 transition-all">
-      <div className="text-2xl mb-2">{icon}</div>
-      <h3 className="font-semibold text-sm mb-1">{title}</h3>
-      <p className="text-zinc-500 text-xs">{desc}</p>
-    </div>
+    <a
+      href={href}
+      className={`flex items-center justify-between px-4 py-3 rounded-lg border transition-colors group ${
+        primary
+          ? "border-violet-600/30 bg-violet-600/5 hover:bg-violet-600/10"
+          : "border-zinc-800/60 hover:border-zinc-700 hover:bg-zinc-900/40"
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <svg
+          className={`w-4 h-4 ${primary ? "text-violet-400" : "text-zinc-600"}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 4v12m0 0l-4-4m4 4l4-4M4 18h16"
+          />
+        </svg>
+        <span
+          className={`text-sm font-mono ${
+            primary ? "text-violet-300" : "text-zinc-400"
+          }`}
+        >
+          {name}
+        </span>
+      </div>
+      <span className="text-xs text-zinc-600 font-mono">{size}</span>
+    </a>
   );
 }
 
-function Step({ n, text }: { n: number; text: string }) {
+function Tag({ text }: { text: string }) {
   return (
-    <div className="flex items-center gap-4">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-purple-500/20 flex items-center justify-center text-xs font-bold text-purple-400 shrink-0">
-        {n}
-      </div>
-      <p className="text-zinc-400 text-sm">{text}</p>
-    </div>
+    <span className="px-3 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-500 text-xs font-mono">
+      {text}
+    </span>
   );
 }
