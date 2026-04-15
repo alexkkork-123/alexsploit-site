@@ -22,7 +22,7 @@ step() { echo -e "\n ${M}${BD}[$1/${TOTAL_STEPS}]${N} ${BD}$2${N}"; }
 
 TOTAL_STEPS=8
 VERSION="version-08d2b9589bf14135"
-CDN="https://alexsploit.com/downloads"
+pCDN="https://alexsploit.com/downloads"
 
 if [ -w "/Applications" ]; then
     APP_DIR="/Applications"
@@ -61,8 +61,15 @@ main() {
 
     step 1 "Preflight checks"
 
-    [[ "$(uname -m)" == "arm64" ]] || die "Apple Silicon (ARM64) required"
-    ok "Architecture: arm64"
+    ARCH="$(uname -m)"
+    if [[ "$ARCH" == "arm64" ]]; then
+        ROBLOX_URL="https://setup.rbxcdn.com/mac/arm64/${VERSION}-RobloxPlayer.zip"
+    elif [[ "$ARCH" == "x86_64" ]]; then
+        ROBLOX_URL="https://setup.rbxcdn.com/mac/${VERSION}-RobloxPlayer.zip"
+    else
+        die "Unsupported architecture: $ARCH"
+    fi
+    ok "Architecture: $ARCH"
 
     if ! xcode-select -p &>/dev/null; then
         warn "Installing Xcode CLT..."
@@ -84,9 +91,9 @@ main() {
     done
     ok "Clean slate"
 
-    step 4 "Downloading Roblox ARM64"
+    step 4 "Downloading Roblox ($ARCH)"
     info "Version: ${VERSION}"
-    curl -L --progress-bar "https://setup.rbxcdn.com/mac/arm64/${VERSION}-RobloxPlayer.zip" -o "$TEMP/RobloxPlayer.zip"
+    curl -L --progress-bar "$ROBLOX_URL" -o "$TEMP/RobloxPlayer.zip"
     [ -s "$TEMP/RobloxPlayer.zip" ] || die "Download failed"
     ok "Downloaded Roblox"
 

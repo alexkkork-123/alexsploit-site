@@ -33,8 +33,8 @@ export default function Home() {
             AlexSploit
           </h1>
           <p className="text-zinc-500 text-base leading-relaxed max-w-md">
-            ARM64 macOS executor for Apple Silicon. One command to download,
-            inject, and launch.
+            macOS executor for Apple Silicon and Intel. One command to
+            download, inject, and launch.
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function Home() {
             <DownloadRow
               href="/downloads/libAlexSploit.dylib"
               name="libAlexSploit.dylib"
-              size="15 MB"
+              size="29 MB"
             />
             <DownloadRow
               href="/downloads/install.sh"
@@ -130,7 +130,7 @@ export default function Home() {
             Requirements
           </h2>
           <div className="flex flex-wrap gap-2">
-            <Tag text="Apple Silicon" />
+            <Tag text="Apple Silicon + Intel" />
             <Tag text="macOS 11+" />
             <Tag text="Xcode CLT" />
           </div>
