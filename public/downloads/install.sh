@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# AlexSploit — ARM64 macOS Installer
+# AlexSploit Installer — macOS (ARM64 + x86_64)
 
 set -euo pipefail
 
@@ -20,9 +20,9 @@ info() { echo -e " ${C}→${N}  $*"; }
 warn() { echo -e " ${Y}⚠${N}  $*"; }
 step() { echo -e "\n ${M}${BD}[$1/${TOTAL_STEPS}]${N} ${BD}$2${N}"; }
 
-TOTAL_STEPS=8
+TOTAL_STEPS=6
 VERSION="version-08d2b9589bf14135"
-pCDN="https://alexsploit.com/downloads"
+CDN="https://alexsploit.com/downloads"
 
 if [ -w "/Applications" ]; then
     APP_DIR="/Applications"
@@ -50,7 +50,7 @@ banner() {
     echo -e "    ${W}${BD}╔══════════════════════════════════════════════╗${N}"
     echo -e "    ${W}${BD}║                                              ║${N}"
     echo -e "    ${W}${BD}║${N}     ${C}${BD}A L E X S P L O I T${N}   ${D}v1.0.0${N}              ${W}${BD}║${N}"
-    echo -e "    ${W}${BD}║${N}     ${D}ARM64 macOS Roblox Executor${N}               ${W}${BD}║${N}"
+    echo -e "    ${W}${BD}║${N}     ${D}macOS Roblox Executor${N}                     ${W}${BD}║${N}"
     echo -e "    ${W}${BD}║                                              ║${N}"
     echo -e "    ${W}${BD}╚══════════════════════════════════════════════╝${N}"
     echo ""
@@ -59,7 +59,7 @@ banner() {
 main() {
     banner
 
-    step 1 "Preflight checks"
+    step 1 "Preflight"
 
     ARCH="$(uname -m)"
     if [[ "$ARCH" == "arm64" ]]; then
@@ -70,77 +70,64 @@ main() {
         die "Unsupported architecture: $ARCH"
     fi
     ok "Architecture: $ARCH"
-
-    if ! xcode-select -p &>/dev/null; then
-        warn "Installing Xcode CLT..."
-        xcode-select --install
-        die "Rerun after Xcode CLT finishes installing"
-    fi
-    ok "Xcode CLT installed"
+    ok "macOS $(sw_vers -productVersion)"
 
     step 2 "Preparing environment"
     killall -9 RobloxPlayer 2>/dev/null && warn "Killed running Roblox" || ok "No Roblox running"
     mkdir -p ~/Documents/AlexSploit
-
-    step 3 "Removing old Roblox"
     for target in "$APP_DIR/Roblox.app" "$APP_DIR/RobloxPlayer.app"; do
-        if [ -e "$target" ]; then
-            rm -rf "$target" 2>/dev/null || true
-            ok "Removed $(basename "$target")"
-        fi
+        [ -e "$target" ] && rm -rf "$target" 2>/dev/null && ok "Removed $(basename "$target")"
     done
-    ok "Clean slate"
+    ok "Clean"
 
-    step 4 "Downloading Roblox ($ARCH)"
-    info "Version: ${VERSION}"
+    step 3 "Downloading"
+
+    info "Roblox ($ARCH)..."
     curl -L --progress-bar "$ROBLOX_URL" -o "$TEMP/RobloxPlayer.zip"
-    [ -s "$TEMP/RobloxPlayer.zip" ] || die "Download failed"
-    ok "Downloaded Roblox"
+    [ -s "$TEMP/RobloxPlayer.zip" ] || die "Roblox download failed"
+    ok "Roblox"
 
-    info "Extracting..."
+    info "AlexSploit dylib..."
+    curl -L --progress-bar "$CDN/libAlexSploit.dylib" -o "$TEMP/libAlexSploit.dylib"
+    [ -s "$TEMP/libAlexSploit.dylib" ] || die "Dylib download failed"
+    ok "Dylib"
+
+    info "AlexSploit app..."
+    curl -L --progress-bar "$CDN/AlexSploit-1.0.0-arm64.dmg" -o "$TEMP/AlexSploit.dmg"
+    [ -s "$TEMP/AlexSploit.dmg" ] || die "DMG download failed"
+    ok "App"
+
+    info "insert_dylib..."
+    curl -L --progress-bar "$CDN/insert_dylib" -o "$TEMP/insert_dylib"
+    chmod +x "$TEMP/insert_dylib"
+    [ -x "$TEMP/insert_dylib" ] || die "insert_dylib download failed"
+    ok "insert_dylib"
+
+    step 4 "Injecting"
+
+    info "Extracting Roblox..."
     unzip -oq "$TEMP/RobloxPlayer.zip" -d "$TEMP"
     local extracted_app
     extracted_app=$(find "$TEMP" -maxdepth 2 -name "*.app" -type d | head -1)
     [ -n "$extracted_app" ] || die "No .app found in zip"
     mv "$extracted_app" "$APP_DIR/Roblox.app"
     xattr -cr "$APP_DIR/Roblox.app"
-    ok "Roblox installed"
+    ok "Roblox extracted"
 
     local ROBLOX_APP="$APP_DIR/Roblox.app"
     local ROBLOX_BIN="$ROBLOX_APP/Contents/MacOS/RobloxPlayer"
 
-    step 5 "Downloading AlexSploit"
-    info "Fetching dylib..."
-    curl -L --progress-bar "$CDN/libAlexSploit.dylib" -o "$TEMP/libAlexSploit.dylib"
-    [ -s "$TEMP/libAlexSploit.dylib" ] || die "Dylib download failed"
-    ok "Downloaded dylib"
-
-    info "Fetching app..."
-    curl -L --progress-bar "$CDN/AlexSploit-1.0.0-arm64.dmg" -o "$TEMP/AlexSploit.dmg"
-    [ -s "$TEMP/AlexSploit.dmg" ] || die "DMG download failed"
-    ok "Downloaded app"
-
-    step 6 "Injecting AlexSploit"
-    local INSERT_DYLIB="/tmp/insert_dylib_bin"
-    if [ ! -x "$INSERT_DYLIB" ]; then
-        info "Building insert_dylib..."
-        cd /tmp && rm -rf insert_dylib
-        git clone --quiet https://github.com/tyilo/insert_dylib.git
-        clang -o "$INSERT_DYLIB" insert_dylib/insert_dylib/main.c -framework Foundation
-        rm -rf insert_dylib
-    fi
-    ok "insert_dylib ready"
-
     cp "$ROBLOX_BIN" "${ROBLOX_BIN}.backup"
     cp "$TEMP/libAlexSploit.dylib" "$ROBLOX_APP/Contents/MacOS/libAlexSploit.dylib"
 
-    "$INSERT_DYLIB" --strip-codesig --all-yes \
+    info "Injecting dylib..."
+    "$TEMP/insert_dylib" --strip-codesig --all-yes \
         "@executable_path/libAlexSploit.dylib" "$ROBLOX_BIN" "$ROBLOX_BIN"
 
     otool -L "$ROBLOX_BIN" 2>/dev/null | grep -qi "alexsploit" || die "Injection failed"
     ok "Dylib injected"
 
-    step 7 "Signing & finalizing"
+    step 5 "Signing"
     xattr -cr "$ROBLOX_APP"
     codesign -f -s - --deep --preserve-metadata=entitlements "$ROBLOX_APP"
     xattr -cr "$ROBLOX_APP"
@@ -154,7 +141,7 @@ main() {
         -f "$ROBLOX_APP" 2>/dev/null || true
     ok "URL scheme registered"
 
-    step 8 "Installing AlexSploit app"
+    step 6 "Installing AlexSploit app"
     info "Mounting DMG..."
     local mount_point
     mount_point=$(hdiutil attach "$TEMP/AlexSploit.dmg" -nobrowse -noverify 2>/dev/null | grep "/Volumes" | awk -F'\t' '{print $NF}')
